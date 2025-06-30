@@ -66,8 +66,8 @@ roleRef:
   name: jenkins-role
 subjects:
   - kind: ServiceAccount
-    name: jenkins
-    namespace: webapps
+    name: noteapp-sa
+    namespace: webapipss
 ```
 
 ### **4. ClusterRole**
@@ -78,21 +78,50 @@ kind: ClusterRole
 metadata:
   name: jenkins-cluster-role
 rules:
-  # Permissions for persistentvolumes
+  # Core API group resources
   - apiGroups: [""]
     resources:
+      - pods
+      - services
+      - secrets
+      - configmaps
       - persistentvolumes
-    verbs: ["get", "list", "watch", "create", "update", "delete"]
-  # Permissions for storageclasses
+      - persistentvolumeclaims
+      - serviceaccounts        # ✅ Important for your issue
+    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+
+  # Apps resources
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+
+  # Networking resources
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+
+  # Storage classes
   - apiGroups: ["storage.k8s.io"]
     resources:
       - storageclasses
     verbs: ["get", "list", "watch", "create", "update", "delete"]
-  # Permissions for ClusterIssuer
+
+  # Cert-manager resources
   - apiGroups: ["cert-manager.io"]
     resources:
       - clusterissuers
     verbs: ["get", "list", "watch", "create", "update", "delete"]
+
+  # Autoscaling
+  - apiGroups: ["autoscaling"]
+    resources:
+      - horizontalpodautoscalers
+    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+
 ```
 
 ### **5. ClusterRoleBinding**
@@ -108,7 +137,7 @@ roleRef:
   name: jenkins-cluster-role
 subjects:
   - kind: ServiceAccount
-    name: jenkins
+    name: noteapp-sa
     namespace: webapps
 ```
 
