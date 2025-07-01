@@ -1,2 +1,2 @@
 # Azure-aks
-# aks-azure
+A terraform file to create an AKS cluster using terraform
